@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.repository.CostumerRepository;
@@ -85,6 +86,18 @@ public class CostumerService {
 
 
         return costumer;
+
+    }
+    @Transactional
+    public void updateBalance(Long id, Integer balance){
+
+        
+        Costumer costumer = costumerRepository.findById(id).orElseThrow(()-> new RuntimeException());
+
+        costumer.setBalance(balance);
+
+        
+
 
     }
 
