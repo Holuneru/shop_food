@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ShopFood</title>
+</head>
+
+<body>
+
+<h1>ShopFood</h1>
+
+<h2>Регистрация</h2>
+<input id="regName" placeholder="Name">
+<input id="regPassword" type="password" placeholder="Password">
+<button onclick="register()">Register</button>
+<p id="regError" style="color:red"></p>
+
+<hr>
+
+<h2>Login</h2>
+<input id="loginName" placeholder="Name">
+<input id="loginPassword" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="loginError" style="color:red"></p>
+
+<hr>
+
+<h2>Личный кабинет</h2>
+<p id="userName"></p>
+<p id="userBalance"></p>
+
+<script>
+
+// Регистрация
+async function register(){
+    const name = document.getElementById("regName").value;
+    const password = document.getElementById("regPassword").value;
+    const errorEl = document.getElementById("regError");
+    errorEl.innerText = ""; // очищаем старые ошибки
+
+    try {
+        const response = await fetch("http://localhost:8080/ShopFood/registration", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name:name, password:password})
+        });
+
+        if(!response.ok){
+            // если сервер вернул ошибку (например RuntimeException)
+            const text = await response.text();
+            throw new Error(text);
+        }
+
+        const data = await response.json();
+        alert("User created: " + data.name);
+
+    } catch(err) {
+        errorEl.innerText = err.message; // показываем ошибку пользователю
+    }
+}
+
+// Логин
+async function login(){
+    const name = document.getElementById("loginName").value;
+    const password = document.getElementById("loginPassword").value;
+    const errorEl = document.getElementById("loginError");
+    errorEl.innerText = "";
+
+    try {
+        const response = await fetch("http://localhost:8080/ShopFood/login", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name:name, password:password})
+        });
+
+        if(!response.ok){
+            const text = await response.text();
+            throw new Error(text);
+        }
+
+        const user = await response.json();
+        document.getElementById("userName").innerText = "Name: " + user.name;
+        document.getElementById("userBalance").innerText = "Balance: " + user.balance;
+
+    } catch(err) {
+        errorEl.innerText = err.message;
+    }
+}
+
+</script>
+
+</body>
+</html>
