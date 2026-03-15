@@ -1,93 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>ShopFood</title>
+    <meta charset="UTF-8">
+    <title>Shop Food</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        input { margin: 5px 0; padding: 5px; width: 200px; }
+        button { padding: 5px 10px; margin-top: 10px; }
+        #loginSection, #regSection, #cabinetSection { margin-bottom: 30px; }
+        #cabinetSection { display: none; border-top: 1px solid #ccc; padding-top: 20px; }
+    </style>
 </head>
-
 <body>
 
-<h1>ShopFood</h1>
+    <h1>Shop Food App</h1>
 
-<h2>Регистрация</h2>
-<input id="regName" placeholder="Name">
-<input id="regPassword" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
-<p id="regError" style="color:red"></p>
+    <!-- Registration -->
+    <div id="regSection">
+        <h2>Registration</h2>
+        <input type="text" id="regName" placeholder="Name"><br>
+        <input type="password" id="regPassword" placeholder="Password"><br>
+        <button onclick="register()">Register</button>
+        <div id="regResult"></div>
+    </div>
 
-<hr>
+    <!-- Login -->
+    <div id="loginSection">
+        <h2>Login</h2>
+        <input type="text" id="loginName" placeholder="Name"><br>
+        <input type="password" id="loginPassword" placeholder="Password"><br>
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
 
-<h2>Login</h2>
-<input id="loginName" placeholder="Name">
-<input id="loginPassword" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
-<p id="loginError" style="color:red"></p>
+    <!-- Personal Cabinet -->
+    <div id="cabinetSection">
+        <h2>Personal Cabinet</h2>
+        <p>Name: <span id="userName"></span></p>
+        <p>Balance: $<span id="userBalance"></span></p>
+        <button onclick="logout()">Logout</button>
+    </div>
 
-<hr>
+    <script>
+        // Registration
+        async function register() {
+            const name = document.getElementById("regName").value;
+            const password = document.getElementById("regPassword").value;
+            const regResult = document.getElementById("regResult");
 
-<h2>Личный кабинет</h2>
-<p id="userName"></p>
-<p id="userBalance"></p>
+            if (!name || !password) {
+                regResult.innerText = "Enter name and password";
+                return;
+            }
 
-<script>
+            try {
+                const response = await fetch("/ShopFood/registration", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, password })
+                });
 
-// Регистрация
-async function register(){
-    const name = document.getElementById("regName").value;
-    const password = document.getElementById("regPassword").value;
-    const errorEl = document.getElementById("regError");
-    errorEl.innerText = ""; // очищаем старые ошибки
+                if (!response.ok) {
+                    regResult.innerText = "Registration failed";
+                    return;
+                }
 
-    try {
-        const response = await fetch("http://localhost:8080/ShopFood/registration", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name:name, password:password})
-        });
-
-        if(!response.ok){
-            // если сервер вернул ошибку (например RuntimeException)
-            const text = await response.text();
-            throw new Error(text);
+                const user = await response.json();
+                regResult.innerText = `Registered successfully: ${user.name}, Balance: ${user.balance}`;
+            } catch (err) {
+                regResult.innerText = "Error during registration";
+            }
         }
 
-        const data = await response.json();
-        alert("User created: " + data.name);
+        // Login
+        async function login() {
+            const name = document.getElementById("loginName").value;
+            const password = document.getElementById("loginPassword").value;
+            const loginResult = document.getElementById("loginResult");
 
-    } catch(err) {
-        errorEl.innerText = err.message; // показываем ошибку пользователю
-    }
-}
+            if (!name || !password) {
+                loginResult.innerText = "Enter name and password";
+                return;
+            }
 
-// Логин
-async function login(){
-    const name = document.getElementById("loginName").value;
-    const password = document.getElementById("loginPassword").value;
-    const errorEl = document.getElementById("loginError");
-    errorEl.innerText = "";
+            try {
+                // Бэкенд у тебя пока нет отдельного login-метода, поэтому для теста используем fetch всех пользователей
+                const response = await fetch(`/ShopFood/api/costumers`);
+                if (!response.ok) {
+                    loginResult.innerText = "Login failed";
+                    return;
+                }
 
-    try {
-        const response = await fetch("http://localhost:8080/ShopFood/login", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name:name, password:password})
-        });
+                const users = await response.json();
+                const user = users.find(u => u.name === name && u.password === password);
 
-        if(!response.ok){
-            const text = await response.text();
-            throw new Error(text);
+                if (!user) {
+                    loginResult.innerText = "Invalid name or password";
+                    return;
+                }
+
+                // Показ кабинета
+                document.getElementById("userName").innerText = user.name;
+                document.getElementById("userBalance").innerText = user.balance;
+                document.getElementById("cabinetSection").style.display = "block";
+                document.getElementById("loginSection").style.display = "none";
+                document.getElementById("regSection").style.display = "none";
+            } catch (err) {
+                loginResult.innerText = "Error during login";
+            }
         }
 
-        const user = await response.json();
-        document.getElementById("userName").innerText = "Name: " + user.name;
-        document.getElementById("userBalance").innerText = "Balance: " + user.balance;
-
-    } catch(err) {
-        errorEl.innerText = err.message;
-    }
-}
-
-</script>
+        // Logout
+        function logout() {
+            document.getElementById("cabinetSection").style.display = "none";
+            document.getElementById("loginSection").style.display = "block";
+            document.getElementById("regSection").style.display = "block";
+            document.getElementById("loginResult").innerText = "";
+        }
+    </script>
 
 </body>
 </html>
