@@ -1,123 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Shop Food</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        input { margin: 5px 0; padding: 5px; width: 200px; }
-        button { padding: 5px 10px; margin-top: 10px; }
-        #loginSection, #regSection, #cabinetSection { margin-bottom: 30px; }
-        #cabinetSection { display: none; border-top: 1px solid #ccc; padding-top: 20px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>ShopFood</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f0f0; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 50px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    h2, h3 { text-align: center; }
+    form { display: flex; flex-direction: column; gap: 10px; }
+    input { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 10px; font-size: 16px; border-radius: 5px; border: none; background: #28a745; color: #fff; cursor: pointer; }
+    button:hover { background: #218838; }
+    #dashboard { display: none; }
+    #foodList { list-style: none; padding: 0; }
+    #foodList li { padding: 5px 0; border-bottom: 1px solid #ddd; }
+    .error { color: red; text-align: center; }
+  </style>
 </head>
 <body>
+  <div class="container" id="authContainer">
+    <h2>ShopFood</h2>
 
-    <h1>Shop Food App</h1>
-
-    <!-- Registration -->
-    <div id="regSection">
-        <h2>Registration</h2>
-        <input type="text" id="regName" placeholder="Name"><br>
-        <input type="password" id="regPassword" placeholder="Password"><br>
-        <button onclick="register()">Register</button>
-        <div id="regResult"></div>
+    <!-- Форма логина -->
+    <div id="loginDiv">
+      <h3>Вход</h3>
+      <form id="loginForm">
+        <input type="text" id="loginName" placeholder="Имя" required>
+        <input type="password" id="loginPassword" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+      </form>
+      <p>Нет аккаунта? <a href="#" id="showRegister">Зарегистрироваться</a></p>
+      <p class="error" id="loginError"></p>
     </div>
 
-    <!-- Login -->
-    <div id="loginSection">
-        <h2>Login</h2>
-        <input type="text" id="loginName" placeholder="Name"><br>
-        <input type="password" id="loginPassword" placeholder="Password"><br>
-        <button onclick="login()">Login</button>
-        <div id="loginResult"></div>
+    <!-- Форма регистрации -->
+    <div id="registerDiv" style="display:none;">
+      <h3>Регистрация</h3>
+      <form id="registerForm">
+        <input type="text" id="regName" placeholder="Имя" required>
+        <input type="password" id="regPassword" placeholder="Пароль" required>
+        <button type="submit">Зарегистрироваться</button>
+      </form>
+      <p>Уже есть аккаунт? <a href="#" id="showLogin">Войти</a></p>
+      <p class="error" id="regError"></p>
     </div>
+  </div>
 
-    <!-- Personal Cabinet -->
-    <div id="cabinetSection">
-        <h2>Personal Cabinet</h2>
-        <p>Name: <span id="userName"></span></p>
-        <p>Balance: $<span id="userBalance"></span></p>
-        <button onclick="logout()">Logout</button>
-    </div>
+  <!-- Личный кабинет -->
+  <div class="container" id="dashboard">
+    <h2>Личный кабинет</h2>
+    <p>Добро пожаловать, <span id="userName"></span>!</p>
+    <p>Ваш баланс: <span id="userBalance"></span>₽</p>
+    <h3>Список доступной еды и напитков:</h3>
+    <ul id="foodList"></ul>
+    <button id="logoutBtn">Выйти</button>
+  </div>
 
-    <script>
-        // Registration
-        async function register() {
-            const name = document.getElementById("regName").value;
-            const password = document.getElementById("regPassword").value;
-            const regResult = document.getElementById("regResult");
+  <script>
+    // Переключение форм
+    const loginDiv = document.getElementById('loginDiv');
+    const registerDiv = document.getElementById('registerDiv');
+    document.getElementById('showRegister').onclick = () => { loginDiv.style.display = 'none'; registerDiv.style.display = 'block'; };
+    document.getElementById('showLogin').onclick = () => { loginDiv.style.display = 'block'; registerDiv.style.display = 'none'; };
 
-            if (!name || !password) {
-                regResult.innerText = "Enter name and password";
-                return;
-            }
+    // Локальное хранилище пользователя
+    let currentUser = null;
 
-            try {
-                const response = await fetch("/ShopFood/registration", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, password })
-                });
+    // Логин
+    document.getElementById('loginForm').onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById('loginName').value;
+      const password = document.getElementById('loginPassword').value;
 
-                if (!response.ok) {
-                    regResult.innerText = "Registration failed";
-                    return;
-                }
+      fetch('/ShopFood/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, password })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Неверные данные");
+        return res.json();
+      })
+      .then(data => {
+        currentUser = data;
+        showDashboard();
+      })
+      .catch(err => { document.getElementById('loginError').textContent = err.message; });
+    };
 
-                const user = await response.json();
-                regResult.innerText = `Registered successfully: ${user.name}, Balance: ${user.balance}`;
-            } catch (err) {
-                regResult.innerText = "Error during registration";
-            }
-        }
+    // Регистрация
+    document.getElementById('registerForm').onsubmit = (e) => {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const password = document.getElementById('regPassword').value;
 
-        // Login
-        async function login() {
-            const name = document.getElementById("loginName").value;
-            const password = document.getElementById("loginPassword").value;
-            const loginResult = document.getElementById("loginResult");
+      fetch('/ShopFood/registration', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, password })
+      })
+      .then(res => {
+        if (!res.ok) return res.text().then(text => { throw new Error(text); });
+        return res.json();
+      })
+      .then(data => {
+        currentUser = data;
+        showDashboard();
+      })
+      .catch(err => { document.getElementById('regError').textContent = err.message; });
+    };
 
-            if (!name || !password) {
-                loginResult.innerText = "Enter name and password";
-                return;
-            }
+    // Показ личного кабинета
+    function showDashboard() {
+      document.getElementById('authContainer').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('userName').textContent = currentUser.name;
+      document.getElementById('userBalance').textContent = currentUser.balance;
 
-            try {
-                // Бэкенд у тебя пока нет отдельного login-метода, поэтому для теста используем fetch всех пользователей
-                const response = await fetch(`/ShopFood/api/costumers`);
-                if (!response.ok) {
-                    loginResult.innerText = "Login failed";
-                    return;
-                }
+      // Загрузка еды
+      fetch('/ShopFood/getAllListFood?param=all')
+        .then(res => res.json())
+        .then(data => {
+          const foodList = document.getElementById('foodList');
+          foodList.innerHTML = '';
+          data.forEach(food => {
+            const li = document.createElement('li');
+            li.textContent = `${food.nameFood} (${food.type}) — ${food.price}₽`;
+            foodList.appendChild(li);
+          });
+        })
+        .catch(err => console.error("Ошибка при загрузке еды:", err));
+    }
 
-                const users = await response.json();
-                const user = users.find(u => u.name === name && u.password === password);
-
-                if (!user) {
-                    loginResult.innerText = "Invalid name or password";
-                    return;
-                }
-
-                // Показ кабинета
-                document.getElementById("userName").innerText = user.name;
-                document.getElementById("userBalance").innerText = user.balance;
-                document.getElementById("cabinetSection").style.display = "block";
-                document.getElementById("loginSection").style.display = "none";
-                document.getElementById("regSection").style.display = "none";
-            } catch (err) {
-                loginResult.innerText = "Error during login";
-            }
-        }
-
-        // Logout
-        function logout() {
-            document.getElementById("cabinetSection").style.display = "none";
-            document.getElementById("loginSection").style.display = "block";
-            document.getElementById("regSection").style.display = "block";
-            document.getElementById("loginResult").innerText = "";
-        }
-    </script>
-
+    // Выход
+    document.getElementById('logoutBtn').onclick = () => {
+      currentUser = null;
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('authContainer').style.display = 'block';
+    };
+  </script>
 </body>
 </html>
