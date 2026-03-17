@@ -42,7 +42,7 @@ public class CostumerControler {
         return costumerService.addCostumer(costumer);
     }
 
-    @PostMapping("/login")
+    @GetMapping("/login")
     public Costumer loginCostumer(@RequestBody Costumer costumer) {
         
         

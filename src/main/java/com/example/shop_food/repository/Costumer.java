@@ -24,7 +24,8 @@ public class Costumer {
     private Long id;
 
     private String name;
-    private Integer balance;
+    private Integer balance = 0;
+    private Integer orders_counter = 0;
     private String password;
     
 }

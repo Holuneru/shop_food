@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 
 
@@ -28,6 +29,18 @@ public class OrderControler {
     public List<Order> getAllOrders() {
         return orderService.getAllOrders();
     }
+
+    @GetMapping("api/order/{orderId}")
+    public Order getOrderByID(@PathVariable Long orderId) {
+        return orderService.getOrderByID(orderId);
+    }
+
+    @GetMapping("api/costumer/order/{costumerId}")
+    public List<Order> getAllCodtumerOrders(@PathVariable Long costumerId) {
+        return orderService.getAllCodtumerOrders(costumerId);
+    }
+    
+    
     
 
     @PostMapping("/buy")

@@ -31,6 +31,21 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public Order getOrderByID(Long orderId){
+        Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Id is Empty"));
+        return order;
+    }
+
+    public List<Order> getAllCodtumerOrders(Long costumerId){
+        List<Order> orders = orderRepository.findByCostumerId(costumerId);
+        if (orders.isEmpty()) {
+
+            throw new RuntimeException("No Order with costumerID: "+costumerId);
+        }
+        return orders;
+    }
+
+
     @Transactional
     public void buyFood(Long costumerId, Long foodId){
 
@@ -42,7 +57,10 @@ public class OrderService {
         }
 
         costumer.setBalance(costumer.getBalance()-food.getPrice());
-
+        if (costumer.getOrders_counter()==null) {
+            costumer.setOrders_counter(0);
+        }
+        costumer.setOrders_counter(costumer.getOrders_counter()+1);
         Order order = new Order();
 
         order.setCostumerId(costumerId);

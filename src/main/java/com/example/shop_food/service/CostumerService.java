@@ -47,9 +47,9 @@ public class CostumerService {
             throw new RuntimeException("Password length < 8");
             
         }
-
-        costumer.setBalance(0);
         
+        // costumer.setBalance(0);
+        // costumer.setOrders_counter(0);
         return costumerRepository.save(costumer);
         
     }
