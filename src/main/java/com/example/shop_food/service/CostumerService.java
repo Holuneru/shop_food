@@ -113,10 +113,12 @@ public class CostumerService {
         if (name != null && !name.equals(costumer.getName()) && !name.isBlank()) {
             costumer.setName(name);
         }
+        
         if (password!= null && !password.equals(costumer.getPassword()) && !password.isBlank()) {
             costumer.setPassword(password);
             
         }
+        
         
         
 
