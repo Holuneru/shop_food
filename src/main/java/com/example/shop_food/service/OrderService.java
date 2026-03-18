@@ -63,7 +63,7 @@ public class OrderService {
         order.setCostumerId(costumerId);
         order.setFoodId(foodId);
         order.setPrice(food.getPrice());
-
+        foodRepository.deleteById(foodId);
         orderRepository.save(order);
 
     }
