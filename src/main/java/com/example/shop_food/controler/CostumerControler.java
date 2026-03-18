@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 
+
+
 @RestController
 @RequestMapping(path = "/ShopFood")
 @RequiredArgsConstructor
@@ -55,11 +57,15 @@ public class CostumerControler {
         costumerService.deleteCostumer(id);
     }
     
-    @PutMapping("/updateBalance")
+    @PostMapping("/addBalance")
     public void updateBalance(@RequestParam Long id, @RequestParam Integer balance) {
        costumerService.updateBalance(id, balance);
     }
     
+    @PutMapping("/updateCostumer/{id}")
+    public void updateCostumer(@PathVariable Long id, @RequestParam(required = false) String name, String password ) {
+        costumerService.updateCostumer(id, name, password);
+    }
 
     
 }

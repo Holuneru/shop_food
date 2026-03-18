@@ -6,7 +6,6 @@
 <title>ShopFood</title>
 
 <style>
-
 body{
 font-family:Arial;
 margin:30px;
@@ -36,7 +35,6 @@ td,th{
 border:1px solid black;
 padding:6px;
 }
-
 </style>
 
 </head>
@@ -72,6 +70,13 @@ padding:6px;
 
 <hr>
 
+<h3>Пополнить баланс</h3>
+
+<input id="balanceInput" placeholder="Сумма">
+<button onclick="addBalance()">Пополнить</button>
+
+<hr>
+
 <h3>Список еды</h3>
 
 <button onclick="loadFood()">Обновить список</button>
@@ -79,7 +84,6 @@ padding:6px;
 <table>
 
 <thead>
-
 <tr>
 <th>ID</th>
 <th>Название</th>
@@ -87,7 +91,6 @@ padding:6px;
 <th>Цена</th>
 <th>Купить</th>
 </tr>
-
 </thead>
 
 <tbody id="foodTable"></tbody>
@@ -110,18 +113,14 @@ const name=document.getElementById("regName").value;
 const password=document.getElementById("regPassword").value;
 
 const response = await fetch("/ShopFood/registration",{
-
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({name,password})
-
 });
 
 if(!response.ok){
-
 document.getElementById("regResult").innerText="Ошибка регистрации";
 return;
-
 }
 
 document.getElementById("regResult").innerText="Пользователь создан";
@@ -136,18 +135,14 @@ const name=document.getElementById("loginName").value;
 const password=document.getElementById("loginPassword").value;
 
 const response = await fetch("/ShopFood/login",{
-
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({name,password})
-
 });
 
 if(!response.ok){
-
 document.getElementById("loginResult").innerText="Ошибка входа";
 return;
-
 }
 
 currentUser = await response.json();
@@ -175,14 +170,16 @@ table.innerHTML="";
 
 foods.forEach(food=>{
 
+const id = food.idcode ?? food.Idcode;
+
 const row=document.createElement("tr");
 
 row.innerHTML=`
-<td>${food.idcode ?? food.Idcode}</td>
+<td>${id}</td>
 <td>${food.nameFood}</td>
 <td>${food.type}</td>
 <td>${food.price}</td>
-<td><button onclick="buyFood(${food.idcode ?? food.Idcode})">Buy</button></td>
+<td><button onclick="buyFood(${id})">Buy</button></td>
 `;
 
 table.appendChild(row);
@@ -201,15 +198,35 @@ const response = await fetch(
 );
 
 if(!response.ok){
-
 alert("Недостаточно денег или ошибка покупки");
 return;
-
 }
 
 alert("Покупка успешна");
 
+updateBalance();
 loadFood();
+
+}
+
+
+
+async function addBalance(){
+
+const amount = document.getElementById("balanceInput").value;
+
+const response = await fetch(
+"/ShopFood/addBalance?id="+currentUser.id+"&balance="+amount,
+{method:"POST"}
+);
+
+if(!response.ok){
+alert("Ошибка пополнения");
+return;
+}
+
+alert("Баланс пополнен");
+
 updateBalance();
 
 }
@@ -225,11 +242,8 @@ const users = await response.json();
 const user = users.find(u=>u.id===currentUser.id);
 
 if(user){
-
 currentUser.balance=user.balance;
-
 document.getElementById("userBalance").innerText=user.balance;
-
 }
 
 }

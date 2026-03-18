@@ -92,13 +92,33 @@ public class CostumerService {
     @Transactional
     public void updateBalance(Long id, Integer balance){
 
-        
+        if (balance <0|| balance == null) {
+            throw new RuntimeException("Invalide balanceResponse");
+        }
         Costumer costumer = costumerRepository.findById(id).orElseThrow(()-> new RuntimeException());
-
+        if (costumer.getBalance() == null || costumer.getBalance()<0) {
+            costumer.setBalance(0);
+        }
         costumer.setBalance(balance);
 
         
 
+
+    }
+
+    @Transactional
+    public void updateCostumer(Long id, String name,String password ){
+
+        Costumer costumer = costumerRepository.findById(id).orElseThrow(()-> new RuntimeException("User whith id: "+ id+" undefound"));
+        if (name != null && !name.equals(costumer.getName()) && !name.isBlank()) {
+            costumer.setName(name);
+        }
+        if (password!= null && !password.equals(costumer.getPassword()) && !password.isBlank()) {
+            costumer.setPassword(password);
+            
+        }
+        
+        
 
     }
 
