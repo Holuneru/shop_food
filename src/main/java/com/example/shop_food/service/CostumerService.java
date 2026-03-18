@@ -9,16 +9,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.repository.CostumerRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class CostumerService {
 
 
     
     private final CostumerRepository costumerRepository;
 
-    public CostumerService(CostumerRepository costumerRepository) {
-        this.costumerRepository = costumerRepository;
-    }
+    
 
 
     public List<Costumer> findAllCostumers(){

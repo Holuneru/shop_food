@@ -9,15 +9,14 @@ import com.example.shop_food.repository.Food;
 import com.example.shop_food.repository.FoodRepository;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class FoodService {
 
     private final FoodRepository foodRepository;
 
-    public FoodService(FoodRepository foodRepository) {
-        this.foodRepository = foodRepository;
-    }
 
     public List<Food> getAllFoodItems(){
         return foodRepository.findAll();

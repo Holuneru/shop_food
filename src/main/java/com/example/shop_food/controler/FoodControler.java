@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.shop_food.repository.Food;
 import com.example.shop_food.service.FoodService;
 
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -22,14 +23,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping(path = "/ShopFood")
+@RequiredArgsConstructor
 public class FoodControler {
 
     private final FoodService foodService;
     
-
-    public FoodControler(FoodService foodService) {
-        this.foodService = foodService;
-    }
 
 
     @GetMapping("/getAllListFood")

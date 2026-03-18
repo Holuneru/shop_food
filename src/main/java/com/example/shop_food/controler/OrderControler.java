@@ -6,6 +6,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.shop_food.repository.Order;
 import com.example.shop_food.service.OrderService;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
@@ -17,13 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping(path = "/ShopFood")
+@RequiredArgsConstructor
 public class OrderControler {
 
     private final OrderService orderService;
-
-    public OrderControler(OrderService orderService) {
-        this.orderService = orderService;
-    }
 
     @GetMapping("api/orders")
     public List<Order> getAllOrders() {

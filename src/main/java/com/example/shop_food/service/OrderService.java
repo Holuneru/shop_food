@@ -12,7 +12,10 @@ import com.example.shop_food.repository.FoodRepository;
 import com.example.shop_food.repository.Order;
 import com.example.shop_food.repository.OrderRepository;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
     private final OrderRepository orderRepository;
@@ -20,12 +23,6 @@ public class OrderService {
     private final FoodRepository foodRepository;
     
 
-    public OrderService(OrderRepository orderRepository, CostumerRepository costumerRepository,
-            FoodRepository foodRepository) {
-        this.orderRepository = orderRepository;
-        this.costumerRepository = costumerRepository;
-        this.foodRepository = foodRepository;
-    }
 
     public List<Order> getAllOrders(){
         return orderRepository.findAll();

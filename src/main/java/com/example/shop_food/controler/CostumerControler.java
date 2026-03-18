@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.service.CostumerService;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,13 +24,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping(path = "/ShopFood")
+@RequiredArgsConstructor
 public class CostumerControler {
 
     private final CostumerService costumerService;
 
-    public CostumerControler(CostumerService costumerService) {
-        this.costumerService = costumerService;
-    }
+    
 
     @GetMapping("/api/costumers")
     public List<Costumer> getAllCostumers() {
@@ -42,7 +43,7 @@ public class CostumerControler {
         return costumerService.addCostumer(costumer);
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public Costumer loginCostumer(@RequestBody Costumer costumer) {
         
         
