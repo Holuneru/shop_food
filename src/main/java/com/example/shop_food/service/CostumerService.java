@@ -99,7 +99,7 @@ public class CostumerService {
         if (costumer.getBalance() == null || costumer.getBalance()<0) {
             costumer.setBalance(0);
         }
-        costumer.setBalance(balance);
+        costumer.setBalance(costumer.getBalance()+ balance);
 
         
 

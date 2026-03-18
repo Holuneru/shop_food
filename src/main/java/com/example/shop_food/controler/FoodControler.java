@@ -31,7 +31,7 @@ public class FoodControler {
 
 
     @GetMapping("/getAllListFood")
-    public List<Food> getMethodName(@RequestParam String param) {
+    public List<Food> getMethodName() {
         return foodService.getAllFoodItems();
     }
 
