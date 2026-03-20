@@ -3,6 +3,7 @@ package com.example.shop_food.controler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.shop_food.DTO.FoodShortDTO;
 import com.example.shop_food.repository.Food;
 import com.example.shop_food.service.FoodService;
 
@@ -31,7 +32,7 @@ public class FoodControler {
 
 
     @GetMapping("/getAllListFood")
-    public List<Food> getMethodName() {
+    public List<FoodShortDTO> getMethodName() {
         return foodService.getAllFoodItems();
     }
 

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.example.shop_food.DTO.FoodShortDTO;
 import com.example.shop_food.repository.Food;
 import com.example.shop_food.repository.FoodRepository;
 
@@ -18,8 +19,15 @@ public class FoodService {
     private final FoodRepository foodRepository;
 
 
-    public List<Food> getAllFoodItems(){
-        return foodRepository.findAll();
+    public List<FoodShortDTO> getAllFoodItems(){
+        List<Food> foods = foodRepository.findAll();
+        return foods.stream()
+            .map(food -> new FoodShortDTO(
+                food.getNameFood(),
+                food.getType(),
+                food.getPrice()
+            ))
+            .toList();
     }
 
     public void deleteFoodItem(Long Idcode){
