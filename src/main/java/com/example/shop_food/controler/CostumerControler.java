@@ -2,6 +2,7 @@ package com.example.shop_food.controler;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.shop_food.DTO.CostumerShortDTO;
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.service.CostumerService;
 
@@ -31,6 +32,10 @@ public class CostumerControler {
 
     private final CostumerService costumerService;
 
+    @GetMapping("/dtoCostumer/{id}")
+    public CostumerShortDTO getDTOcCostumerShortDTO(@PathVariable Long id) {
+        return costumerService.getCostumerDTO_test(id);
+    }
     
 
     @GetMapping("/api/costumers")
@@ -39,7 +44,7 @@ public class CostumerControler {
     }
 
     @PostMapping("/registration")
-    public Costumer addCostumer(@RequestBody Costumer costumer ) {
+    public CostumerShortDTO addCostumer(@RequestBody Costumer costumer ) {
 
         
         return costumerService.addCostumer(costumer);

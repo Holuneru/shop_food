@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.shop_food.DTO.CostumerShortDTO;
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.repository.CostumerRepository;
 
@@ -19,6 +20,12 @@ public class CostumerService {
     
     private final CostumerRepository costumerRepository;
 
+
+    public CostumerShortDTO getCostumerDTO_test(Long id){
+        Costumer costumer = costumerRepository.findById(id).orElseThrow(()-> new RuntimeException("Costumer undefound"));
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(), costumer.getBalance(), costumer.getOrders_counter());
+        return dto;
+    }
     
 
 
@@ -27,7 +34,7 @@ public class CostumerService {
     }
 
 
-    public Costumer addCostumer(Costumer costumer){
+    public CostumerShortDTO addCostumer(Costumer costumer){
 
         if (costumer==null) {
 
@@ -51,7 +58,8 @@ public class CostumerService {
         
         // costumer.setBalance(0);
         // costumer.setOrders_counter(0);
-        return costumerRepository.save(costumer);
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(),costumer.getBalance(),costumer.getOrders_counter());
+        return dto;
         
     }
 

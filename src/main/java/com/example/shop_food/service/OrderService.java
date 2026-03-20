@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.shop_food.DTO.OrderShortDTO;
 import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.repository.CostumerRepository;
 import com.example.shop_food.repository.Food;
@@ -28,9 +29,12 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
-    public Order getOrderByID(Long orderId){
+    public OrderShortDTO getOrderByID(Long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(()->new RuntimeException("Id is Empty"));
-        return order;
+        Costumer costumer = costumerRepository.findById(order.getCostumerId()).orElseThrow(()-> new RuntimeException("ERROR_COSTUMER"));
+        Food food = foodRepository.findById(order.getFoodId()).orElseThrow(()-> new RuntimeException("ERROR.FOOD"));
+        OrderShortDTO dto = new OrderShortDTO(costumer.getName(),food.getNameFood(), order.getPrice());
+        return dto;
     }
 
     public List<Order> getAllCodtumerOrders(Long costumerId){
@@ -63,7 +67,7 @@ public class OrderService {
         order.setCostumerId(costumerId);
         order.setFoodId(foodId);
         order.setPrice(food.getPrice());
-        foodRepository.deleteById(foodId);
+        // foodRepository.deleteById(foodId);
         orderRepository.save(order);
 
     }
