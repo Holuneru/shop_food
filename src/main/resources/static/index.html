@@ -6,19 +6,20 @@
 <title>ShopFood</title>
 
 <style>
+
 body{
 font-family:Arial;
 margin:30px;
 }
 
 input{
-margin:4px;
+margin:5px;
 padding:6px;
 }
 
 button{
+margin:5px;
 padding:6px;
-margin:4px;
 }
 
 #dashboard{
@@ -28,13 +29,14 @@ margin-top:20px;
 
 table{
 border-collapse:collapse;
-margin-top:10px;
+margin-top:15px;
 }
 
 td,th{
 border:1px solid black;
-padding:6px;
+padding:8px;
 }
+
 </style>
 
 </head>
@@ -43,19 +45,21 @@ padding:6px;
 
 <h2>Регистрация</h2>
 
-<input id="regName" placeholder="Name">
-<input id="regPassword" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
+<input id="regName" placeholder="Имя">
+<input id="regPassword" type="password" placeholder="Пароль">
+
+<button onclick="register()">Зарегистрироваться</button>
 
 <p id="regResult"></p>
 
 
 
-<h2>Login</h2>
+<h2>Вход</h2>
 
-<input id="loginName" placeholder="Name">
-<input id="loginPassword" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<input id="loginName" placeholder="Имя">
+<input id="loginPassword" type="password" placeholder="Пароль">
+
+<button onclick="login()">Войти</button>
 
 <p id="loginResult"></p>
 
@@ -73,27 +77,37 @@ padding:6px;
 <h3>Пополнить баланс</h3>
 
 <input id="balanceInput" placeholder="Сумма">
+
 <button onclick="addBalance()">Пополнить</button>
 
 <hr>
 
-<h3>Список еды</h3>
+<h3>Обновить данные пользователя</h3>
 
-<button onclick="loadFood()">Обновить список</button>
+<input id="newName" placeholder="Новое имя">
+<input id="newPassword" type="password" placeholder="Новый пароль">
+
+<button onclick="updateUser()">Обновить</button>
+
+<hr>
+
+<h3>Список пользователей (для теста)</h3>
+
+<button onclick="loadUsers()">Обновить список</button>
 
 <table>
 
 <thead>
+
 <tr>
 <th>ID</th>
-<th>Название</th>
-<th>Тип</th>
-<th>Цена</th>
-<th>Купить</th>
+<th>Name</th>
+<th>Balance</th>
 </tr>
+
 </thead>
 
-<tbody id="foodTable"></tbody>
+<tbody id="usersTable"></tbody>
 
 </table>
 
@@ -103,27 +117,31 @@ padding:6px;
 
 <script>
 
-let currentUser=null;
+let currentUser = null;
 
 
 
 async function register(){
 
-const name=document.getElementById("regName").value;
-const password=document.getElementById("regPassword").value;
+const name = document.getElementById("regName").value;
+const password = document.getElementById("regPassword").value;
 
-const response = await fetch("/ShopFood/registration",{
+const response = await fetch("/api/costumers/registration",{
+
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({name,password})
+
 });
 
 if(!response.ok){
+
 document.getElementById("regResult").innerText="Ошибка регистрации";
 return;
+
 }
 
-document.getElementById("regResult").innerText="Пользователь создан";
+document.getElementById("regResult").innerText="Регистрация успешна";
 
 }
 
@@ -131,18 +149,22 @@ document.getElementById("regResult").innerText="Пользователь соз�
 
 async function login(){
 
-const name=document.getElementById("loginName").value;
-const password=document.getElementById("loginPassword").value;
+const name = document.getElementById("loginName").value;
+const password = document.getElementById("loginPassword").value;
 
-const response = await fetch("/ShopFood/login",{
+const response = await fetch("/api/costumers/login",{
+
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({name,password})
+
 });
 
 if(!response.ok){
+
 document.getElementById("loginResult").innerText="Ошибка входа";
 return;
+
 }
 
 currentUser = await response.json();
@@ -151,61 +173,6 @@ document.getElementById("userName").innerText=currentUser.name;
 document.getElementById("userBalance").innerText=currentUser.balance;
 
 document.getElementById("dashboard").style.display="block";
-
-loadFood();
-
-}
-
-
-
-async function loadFood(){
-
-const response = await fetch("/ShopFood/getAllListFood?param=all");
-
-const foods = await response.json();
-
-const table=document.getElementById("foodTable");
-
-table.innerHTML="";
-
-foods.forEach(food=>{
-
-const id = food.idcode ?? food.Idcode;
-
-const row=document.createElement("tr");
-
-row.innerHTML=`
-<td>${id}</td>
-<td>${food.nameFood}</td>
-<td>${food.type}</td>
-<td>${food.price}</td>
-<td><button onclick="buyFood(${id})">Buy</button></td>
-`;
-
-table.appendChild(row);
-
-});
-
-}
-
-
-
-async function buyFood(foodId){
-
-const response = await fetch(
-"/ShopFood/buy?costumerId="+currentUser.id+"&foodId="+foodId,
-{method:"POST"}
-);
-
-if(!response.ok){
-alert("Недостаточно денег или ошибка покупки");
-return;
-}
-
-alert("Покупка успешна");
-
-updateBalance();
-loadFood();
 
 }
 
@@ -216,13 +183,15 @@ async function addBalance(){
 const amount = document.getElementById("balanceInput").value;
 
 const response = await fetch(
-"/ShopFood/addBalance?id="+currentUser.id+"&balance="+amount,
-{method:"POST"}
+"/api/costumers/addBalance?id="+currentUser.id+"&balance="+amount,
+{ method:"POST" }
 );
 
 if(!response.ok){
+
 alert("Ошибка пополнения");
 return;
+
 }
 
 alert("Баланс пополнен");
@@ -235,16 +204,72 @@ updateBalance();
 
 async function updateBalance(){
 
-const response = await fetch("/ShopFood/api/costumers");
+const response = await fetch("/api/costumers");
 
 const users = await response.json();
 
-const user = users.find(u=>u.id===currentUser.id);
+const user = users.find(u => u.id === currentUser.id);
 
 if(user){
-currentUser.balance=user.balance;
+
+currentUser.balance = user.balance;
+
 document.getElementById("userBalance").innerText=user.balance;
+
 }
+
+}
+
+
+
+async function updateUser(){
+
+const newName = document.getElementById("newName").value;
+const newPassword = document.getElementById("newPassword").value;
+
+const url =
+"/api/costumers/updateCostumer/"+currentUser.id+
+"?name="+newName+
+"&password="+newPassword;
+
+const response = await fetch(url,{ method:"PUT" });
+
+if(!response.ok){
+
+alert("Ошибка обновления");
+return;
+
+}
+
+alert("Данные обновлены");
+
+}
+
+
+
+async function loadUsers(){
+
+const response = await fetch("/api/costumers");
+
+const users = await response.json();
+
+const table = document.getElementById("usersTable");
+
+table.innerHTML="";
+
+users.forEach(user=>{
+
+const row=document.createElement("tr");
+
+row.innerHTML=`
+<td>${user.id}</td>
+<td>${user.name}</td>
+<td>${user.balance}</td>
+`;
+
+table.appendChild(row);
+
+});
 
 }
 

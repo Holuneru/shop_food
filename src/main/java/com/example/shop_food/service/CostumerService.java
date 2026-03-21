@@ -11,9 +11,11 @@ import com.example.shop_food.repository.Costumer;
 import com.example.shop_food.repository.CostumerRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CostumerService {
 
 
@@ -63,7 +65,7 @@ public class CostumerService {
         
     }
 
-    public void deleteCostumer(Long id){
+    public CostumerShortDTO deleteCostumer(Long id){
 
         Optional<Costumer> costumerOptional = costumerRepository.findById(id);
 
@@ -73,11 +75,16 @@ public class CostumerService {
             
         }
 
+        Costumer costumer = costumerRepository.findById(id).orElseThrow();
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(), costumer.getBalance(), costumer.getOrders_counter());
+
 
         costumerRepository.deleteById(id);
+
+        return dto;
     }
 
-    public Costumer  loginCostumer(String name, String password){
+    public CostumerShortDTO  loginCostumer(String name, String password){
         Costumer costumer = costumerRepository.findByName(name);
 
 
@@ -93,12 +100,14 @@ public class CostumerService {
             
         }
 
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(), costumer.getBalance(), costumer.getOrders_counter());
 
-        return costumer;
+
+        return dto;
 
     }
     @Transactional
-    public void updateBalance(Long id, Integer balance){
+    public CostumerShortDTO updateBalance(Long id, Integer balance){
 
         if (balance <0|| balance == null) {
             throw new RuntimeException("Invalide balanceResponse");
@@ -109,23 +118,33 @@ public class CostumerService {
         }
         costumer.setBalance(costumer.getBalance()+ balance);
 
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(), costumer.getBalance(), costumer.getOrders_counter());
+        return dto;
         
 
 
     }
 
     @Transactional
-    public void updateCostumer(Long id, String name,String password ){
+    public CostumerShortDTO updateCostumer(Long id, String name,String password ){
 
         Costumer costumer = costumerRepository.findById(id).orElseThrow(()-> new RuntimeException("User whith id: "+ id+" undefound"));
         if (name != null && !name.equals(costumer.getName()) && !name.isBlank()) {
             costumer.setName(name);
+            log.info("Name was set: "+name);
         }
         
         if (password!= null && !password.equals(costumer.getPassword()) && !password.isBlank()) {
+            if (password.length()<8) {
+                throw new RuntimeException("Password length < 8");
+            }
             costumer.setPassword(password);
+            log.info("Password was set: "+password);
             
         }
+
+        CostumerShortDTO dto = new CostumerShortDTO(costumer.getName(), costumer.getBalance(), costumer.getOrders_counter());
+        return dto;
         
         
         

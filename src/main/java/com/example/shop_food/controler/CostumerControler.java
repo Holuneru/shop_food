@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
-@RequestMapping(path = "/ShopFood")
+@RequestMapping(path = "/api/costumers")
 @RequiredArgsConstructor
 public class CostumerControler {
 
@@ -38,7 +38,7 @@ public class CostumerControler {
     }
     
 
-    @GetMapping("/api/costumers")
+    @GetMapping
     public List<Costumer> getAllCostumers() {
         return costumerService.findAllCostumers();
     }
@@ -51,25 +51,25 @@ public class CostumerControler {
     }
 
     @PostMapping("/login")
-    public Costumer loginCostumer(@RequestBody Costumer costumer) {
+    public CostumerShortDTO loginCostumer(@RequestBody Costumer costumer) {
         
         
         return costumerService.loginCostumer(costumer.getName(), costumer.getPassword());
     }
     
-    @DeleteMapping("/api/del/{id}")
-    public void deleteCostumer(@PathVariable Long id){
-        costumerService.deleteCostumer(id);
+    @DeleteMapping("/del/{id}")
+    public CostumerShortDTO deleteCostumer(@PathVariable Long id){
+        return costumerService.deleteCostumer(id);
     }
     
     @PostMapping("/addBalance")
-    public void updateBalance(@RequestParam Long id, @RequestParam Integer balance) {
-       costumerService.updateBalance(id, balance);
+    public CostumerShortDTO updateBalance(@RequestParam Long id, @RequestParam Integer balance) {
+       return costumerService.updateBalance(id, balance);
     }
     
     @PutMapping("/updateCostumer/{id}")
-    public void updateCostumer(@PathVariable Long id, @RequestParam(required = false) String name, String password ) {
-        costumerService.updateCostumer(id, name, password);
+    public CostumerShortDTO updateCostumer(@PathVariable Long id, @RequestParam(required = false) String name, @RequestParam(required = false) String password ) {
+        return costumerService.updateCostumer(id, name, password);
     }
 
     
