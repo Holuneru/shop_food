@@ -8,18 +8,43 @@
 <style>
 
 body{
-font-family:Arial;
-margin:30px;
+font-family:Arial, Helvetica, sans-serif;
+background:#f4f4f4;
+margin:0;
+padding:30px;
+}
+
+.container{
+max-width:800px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+h2{
+margin-top:0;
 }
 
 input{
-margin:5px;
-padding:6px;
+padding:8px;
+margin:5px 0;
+width:200px;
 }
 
 button{
-margin:5px;
-padding:6px;
+padding:8px 12px;
+margin-top:5px;
+cursor:pointer;
+border:none;
+background:#3498db;
+color:white;
+border-radius:5px;
+}
+
+button:hover{
+background:#2980b9;
 }
 
 #dashboard{
@@ -29,12 +54,31 @@ margin-top:20px;
 
 table{
 border-collapse:collapse;
+width:100%;
 margin-top:15px;
 }
 
-td,th{
-border:1px solid black;
+th,td{
+border:1px solid #ddd;
 padding:8px;
+text-align:center;
+}
+
+th{
+background:#3498db;
+color:white;
+}
+
+.buyBtn{
+background:#2ecc71;
+}
+
+.buyBtn:hover{
+background:#27ae60;
+}
+
+.balanceBox{
+margin-top:15px;
 }
 
 </style>
@@ -43,10 +87,12 @@ padding:8px;
 
 <body>
 
+<div class="container">
+
 <h2>Регистрация</h2>
 
-<input id="regName" placeholder="Имя">
-<input id="regPassword" type="password" placeholder="Пароль">
+<input id="regName" placeholder="Имя"><br>
+<input id="regPassword" type="password" placeholder="Пароль"><br>
 
 <button onclick="register()">Зарегистрироваться</button>
 
@@ -56,8 +102,8 @@ padding:8px;
 
 <h2>Вход</h2>
 
-<input id="loginName" placeholder="Имя">
-<input id="loginPassword" type="password" placeholder="Пароль">
+<input id="loginName" placeholder="Имя"><br>
+<input id="loginPassword" type="password" placeholder="Пароль"><br>
 
 <button onclick="login()">Войти</button>
 
@@ -69,10 +115,10 @@ padding:8px;
 
 <h2>Личный кабинет</h2>
 
-<p>Имя: <span id="userName"></span></p>
-<p>Баланс: <span id="userBalance"></span></p>
+<p><b>Имя:</b> <span id="userName"></span></p>
+<p><b>Баланс:</b> <span id="userBalance"></span></p>
 
-<hr>
+<div class="balanceBox">
 
 <h3>Пополнить баланс</h3>
 
@@ -80,40 +126,33 @@ padding:8px;
 
 <button onclick="addBalance()">Пополнить</button>
 
-<hr>
-
-<h3>Обновить данные пользователя</h3>
-
-<input id="newName" placeholder="Новое имя">
-<input id="newPassword" type="password" placeholder="Новый пароль">
-
-<button onclick="updateUser()">Обновить</button>
+</div>
 
 <hr>
 
-<h3>Список пользователей (для теста)</h3>
+<h3>Список еды</h3>
 
-<button onclick="loadUsers()">Обновить список</button>
+<button onclick="loadFood()">Обновить список</button>
 
 <table>
 
 <thead>
-
 <tr>
 <th>ID</th>
-<th>Name</th>
-<th>Balance</th>
+<th>Название</th>
+<th>Тип</th>
+<th>Цена</th>
+<th>Купить</th>
 </tr>
-
 </thead>
 
-<tbody id="usersTable"></tbody>
+<tbody id="foodTable"></tbody>
 
 </table>
 
 </div>
 
-
+</div>
 
 <script>
 
@@ -129,7 +168,7 @@ const password = document.getElementById("regPassword").value;
 const response = await fetch("/api/costumers/registration",{
 
 method:"POST",
-headers:{ "Content-Type":"application/json" },
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({name,password})
 
 });
@@ -141,7 +180,7 @@ return;
 
 }
 
-document.getElementById("regResult").innerText="Регистрация успешна";
+document.getElementById("regResult").innerText="Пользователь создан";
 
 }
 
@@ -155,7 +194,7 @@ const password = document.getElementById("loginPassword").value;
 const response = await fetch("/api/costumers/login",{
 
 method:"POST",
-headers:{ "Content-Type":"application/json" },
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({name,password})
 
 });
@@ -174,6 +213,62 @@ document.getElementById("userBalance").innerText=currentUser.balance;
 
 document.getElementById("dashboard").style.display="block";
 
+loadFood();
+
+}
+
+
+
+async function loadFood(){
+
+const response = await fetch("/api/foods");
+
+const foods = await response.json();
+
+const table = document.getElementById("foodTable");
+
+table.innerHTML="";
+
+foods.forEach(food=>{
+
+const id = food.idcode ?? food.Idcode;
+
+const row = document.createElement("tr");
+
+row.innerHTML=`
+<td>${id}</td>
+<td>${food.nameFood}</td>
+<td>${food.type}</td>
+<td>${food.price}</td>
+<td><button class="buyBtn" onclick="buyFood(${id})">Buy</button></td>
+`;
+
+table.appendChild(row);
+
+});
+
+}
+
+
+
+async function buyFood(foodId){
+
+const response = await fetch(
+"/api/orders/buy?costumerId="+currentUser.id+"&foodId="+foodId,
+{method:"POST"}
+);
+
+if(!response.ok){
+
+alert("Ошибка покупки или недостаточно денег");
+return;
+
+}
+
+alert("Покупка успешна");
+
+updateBalance();
+
 }
 
 
@@ -184,7 +279,7 @@ const amount = document.getElementById("balanceInput").value;
 
 const response = await fetch(
 "/api/costumers/addBalance?id="+currentUser.id+"&balance="+amount,
-{ method:"POST" }
+{method:"POST"}
 );
 
 if(!response.ok){
@@ -204,72 +299,13 @@ updateBalance();
 
 async function updateBalance(){
 
-const response = await fetch("/api/costumers");
+const response = await fetch("/api/costumers/dtoCostumer/"+currentUser.id);
 
-const users = await response.json();
-
-const user = users.find(u => u.id === currentUser.id);
-
-if(user){
+const user = await response.json();
 
 currentUser.balance = user.balance;
 
 document.getElementById("userBalance").innerText=user.balance;
-
-}
-
-}
-
-
-
-async function updateUser(){
-
-const newName = document.getElementById("newName").value;
-const newPassword = document.getElementById("newPassword").value;
-
-const url =
-"/api/costumers/updateCostumer/"+currentUser.id+
-"?name="+newName+
-"&password="+newPassword;
-
-const response = await fetch(url,{ method:"PUT" });
-
-if(!response.ok){
-
-alert("Ошибка обновления");
-return;
-
-}
-
-alert("Данные обновлены");
-
-}
-
-
-
-async function loadUsers(){
-
-const response = await fetch("/api/costumers");
-
-const users = await response.json();
-
-const table = document.getElementById("usersTable");
-
-table.innerHTML="";
-
-users.forEach(user=>{
-
-const row=document.createElement("tr");
-
-row.innerHTML=`
-<td>${user.id}</td>
-<td>${user.name}</td>
-<td>${user.balance}</td>
-`;
-
-table.appendChild(row);
-
-});
 
 }
 
